@@ -170,28 +170,28 @@
 
     <div class="fund-summary">
       <div class="fixedline" style="font-weight:600;"><span>Total cash + investments</span><b id="fTotal"></b></div>
-      <div class="fixedline" style="padding-left:16px;border-bottom-style:dotted;">
+      <div class="fixedline" style="border-bottom-style:dotted;">
         <span>Checking</span>
         <span style="font-family:var(--mono);font-variant-numeric:tabular-nums;"><span style="color:var(--ink-soft);font-size:12px;">$</span><input type="text" inputmode="numeric" class="money-in" id="checking" value="20000" style="width:80px;border:1px solid var(--line);border-radius:3px;padding:3px 6px;font-family:var(--mono);font-size:13px;text-align:right;background:var(--paper);"></span>
       </div>
-      <div class="fixedline" style="padding-left:16px;border-bottom-style:dotted;">
+      <div class="fixedline" style="border-bottom-style:dotted;">
         <span>Savings</span>
         <span style="font-family:var(--mono);font-variant-numeric:tabular-nums;"><span style="color:var(--ink-soft);font-size:12px;">$</span><input type="text" inputmode="numeric" class="money-in" id="savings" value="80000" style="width:80px;border:1px solid var(--line);border-radius:3px;padding:3px 6px;font-family:var(--mono);font-size:13px;text-align:right;background:var(--paper);"></span>
       </div>
-      <div class="fixedline" style="padding-left:16px;">
+      <div class="fixedline" style="">
         <span>Invested (brokerage)</span>
         <span style="font-family:var(--mono);font-variant-numeric:tabular-nums;"><span style="color:var(--ink-soft);font-size:12px;">$</span><input type="text" inputmode="numeric" class="money-in" id="invested" value="50000" style="width:80px;border:1px solid var(--line);border-radius:3px;padding:3px 6px;font-family:var(--mono);font-size:13px;text-align:right;background:var(--paper);"></span>
       </div>
-      <div class="fixedline"><span>– Down payment</span><b id="fDown"></b></div>
+      <div class="fixedline"><span>Down payment</span><b id="fDown"></b></div>
       <div class="fixedline">
-        <span>– Closing costs</span>
+        <span>Closing costs</span>
         <span style="font-family:var(--mono);font-variant-numeric:tabular-nums;"><span style="color:var(--ink-soft);font-size:12px;">$</span><input type="text" inputmode="numeric" class="money-in" id="closing" value="15000" style="width:80px;border:1px solid var(--line);border-radius:3px;padding:3px 6px;font-family:var(--mono);font-size:13px;text-align:right;background:var(--paper);"></span>
       </div>
       <div class="fixedline">
-        <span>– Moving costs</span>
+        <span>Moving costs</span>
         <span style="font-family:var(--mono);font-variant-numeric:tabular-nums;"><span style="color:var(--ink-soft);font-size:12px;">$</span><input type="text" inputmode="numeric" class="money-in" id="moving" value="5000" style="width:80px;border:1px solid var(--line);border-radius:3px;padding:3px 6px;font-family:var(--mono);font-size:13px;text-align:right;background:var(--paper);"></span>
       </div>
-      <div class="fixedline"><span>– Cap-gains tax on sold investments</span><b id="fCG"></b></div>
+      <div class="fixedline"><span>Cap-gains tax on sold investments</span><b id="fCG"></b></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:4px 0;opacity:0.65;">
         <div class="ctrl" style="margin-bottom:0;"><label style="font-size:11.5px;">Gain % <b id="lgain" style="font-size:11.5px;">40%</b></label>
           <input type="range" id="gain" min="0" max="100" step="5" value="40" style="height:3px;"></div>
@@ -237,12 +237,12 @@
 
     <div class="fund-summary" style="margin:0;">
       <div class="fixedline"><span>Combined gross</span><b id="iGross"></b></div>
-      <div class="fixedline"><span>– 401(k) contributions</span><b id="iK401"></b></div>
-      <div class="fixedline"><span>– Pre-tax health &amp; benefits <em style="font-size:11px;color:var(--ink-soft);">(annual)</em></span><span style="font-family:var(--mono);font-variant-numeric:tabular-nums;"><span style="color:var(--ink-soft);font-size:12px;">$</span><input type="text" inputmode="numeric" class="money-in" id="dWifeHealth" value="6000" style="width:72px;border:1px solid var(--line);border-radius:3px;padding:3px 6px;font-family:var(--mono);font-size:13px;text-align:right;background:var(--paper);"></span></div>
-      <div class="fixedline"><span>– Federal income tax</span><b id="iFed"></b></div>
-      <div class="fixedline"><span>– FICA (Soc. Sec. + Medicare)</span><b id="iFica"></b></div>
-      <div class="fixedline"><span>– State income tax <span id="iMaState" style="font-family:var(--mono);font-size:11px;color:var(--ink-soft);"></span></span><b id="iMa"></b></div>
-      <div class="fixedline"><span>– Other deductions <em style="font-size:11px;color:var(--ink-soft);">(annual)</em></span><span style="font-family:var(--mono);font-variant-numeric:tabular-nums;"><span style="color:var(--ink-soft);font-size:12px;">$</span><input type="text" inputmode="numeric" class="money-in" id="dPFML" value="0" style="width:72px;border:1px solid var(--line);border-radius:3px;padding:3px 6px;font-family:var(--mono);font-size:13px;text-align:right;background:var(--paper);"></span></div>
+      <div class="fixedline"><span>401(k) contributions</span><b id="iK401"></b></div>
+      <div class="fixedline"><span>Pre-tax health &amp; benefits <em style="font-size:11px;color:var(--ink-soft);">(annual)</em></span><span style="font-family:var(--mono);font-variant-numeric:tabular-nums;"><span style="color:var(--ink-soft);font-size:12px;">$</span><input type="text" inputmode="numeric" class="money-in" id="dWifeHealth" value="6000" style="width:72px;border:1px solid var(--line);border-radius:3px;padding:3px 6px;font-family:var(--mono);font-size:13px;text-align:right;background:var(--paper);"></span></div>
+      <div class="fixedline"><span>Federal income tax</span><b id="iFed"></b></div>
+      <div class="fixedline"><span>FICA (Soc. Sec. + Medicare)</span><b id="iFica"></b></div>
+      <div class="fixedline"><span>State income tax <span id="iMaState" style="font-family:var(--mono);font-size:11px;color:var(--ink-soft);"></span></span><b id="iMa"></b></div>
+      <div class="fixedline"><span>Other deductions <em style="font-size:11px;color:var(--ink-soft);">(annual)</em></span><span style="font-family:var(--mono);font-variant-numeric:tabular-nums;"><span style="color:var(--ink-soft);font-size:12px;">$</span><input type="text" inputmode="numeric" class="money-in" id="dPFML" value="0" style="width:72px;border:1px solid var(--line);border-radius:3px;padding:3px 6px;font-family:var(--mono);font-size:13px;text-align:right;background:var(--paper);"></span></div>
       <div class="fixedline reserve-line"><span>Take-home / year</span><b id="iNet"></b></div>
       <div class="fixedline" style="border-bottom:none;padding-top:6px;"><span>Take-home / month (avg)</span><b id="iNetMo" style="font-size:17px;color:var(--amber);"></b></div>
     </div>
@@ -483,10 +483,10 @@ function calc(){
 
   // Update summary
   $('iGross').textContent=fmt(gross);
-  $('iK401').textContent='–'+fmt(k401);
-  $('iFed').textContent='–'+fmt(fed);
-  $('iFica').textContent='–'+fmt(fica);
-  $('iMa').textContent='–'+fmt(maTax);
+  $('iK401').textContent=fmt(k401);
+  $('iFed').textContent=fmt(fed);
+  $('iFica').textContent=fmt(fica);
+  $('iMa').textContent=fmt(maTax);
   $('iMaState').textContent='('+stateInfo[0]+')';
   $('iNet').textContent=fmt(netYr);
   $('iNetMo').textContent=fmt(takehome);
@@ -513,8 +513,8 @@ function calc(){
   $('lgain').textContent=Math.round(gainPct*100)+'%';
   $('lcg').textContent=(cgRate*100).toFixed(1)+'%';
   $('fTotal').textContent=fmt(totalCash);
-  $('fDown').textContent='–'+fmt(down);
-  $('fCG').textContent='–'+fmt(cgTax);
+  $('fDown').textContent=fmt(down);
+  $('fCG').textContent=fmt(cgTax);
   const rEl=$('fReserve'); rEl.textContent=fmt(reserveAfter); rEl.style.color=reserveAfter<0?'var(--red)':'var(--amber)';
 
   $('startEFhint').textContent = shortfall>0 ? 'can\'t fully fund the purchase at these inputs'
