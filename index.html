@@ -129,22 +129,13 @@
 <body>
 <div class="wrap">
   <header>
-    <div class="eyebrow">Household affordability &amp; retirement planner</div>
-    <h1>Can we afford the house, and how fast do we <span class="accent">build savings?</span></h1>
+    <h1>Can we afford this house? <span class="accent" style="font-size:0.6em;font-weight:400;">(and how fast do we build an emergency fund?)</span></h1>
   </header>
 
   <!-- THE HOUSE -->
   <div class="panel" style="margin-top:22px;">
-    <h3>The house <span class="rt" id="houseTot">$0/mo</span></h3>
+    <h3>The house</h3>
     <div class="house-grid">
-      <div>
-        <div class="fixedline"><span>Mortgage P&amp;I</span><b id="fPI"></b></div>
-        <div class="fixedline"><span>Property tax</span><b id="fTax"></b></div>
-        <div class="fixedline"><span>Homeowners insurance</span><b id="fIns"></b></div>
-        <div class="fixedline"><span>PMI (if &lt;20% down)</span><b id="fPMI"></b></div>
-        <div class="fixedline" style="border-bottom:none;"><span>Maintenance reserve</span><b id="fMaint"></b></div>
-        <div class="fixedline" style="border-bottom:none;border-top:2px solid var(--ink);margin-top:6px;padding-top:8px;"><span style="font-weight:600;">Total / month</span><b id="houseTotLine" style="font-size:17px;color:var(--amber);"></b></div>
-      </div>
       <div>
         <div class="ctrl"><label>Purchase price <b id="lprice">$600k</b></label>
           <input type="range" id="price" min="100000" max="3000000" step="10000" value="600000"></div>
@@ -161,43 +152,59 @@
         <div class="ctrl"><label>Maintenance <b id="lmaint">1.5%/yr</b></label>
           <input type="range" id="maint" min="0" max="3" step="0.1" value="1.5"></div>
       </div>
+      <div>
+        <div class="fixedline"><span>Mortgage P&amp;I</span><b id="fPI"></b></div>
+        <div class="fixedline"><span>Property tax</span><b id="fTax"></b></div>
+        <div class="fixedline"><span>Homeowners insurance</span><b id="fIns"></b></div>
+        <div class="fixedline"><span>PMI (if &lt;20% down)</span><b id="fPMI"></b></div>
+        <div class="fixedline" style="border-bottom:none;"><span>Maintenance reserve</span><b id="fMaint"></b></div>
+        <div class="fixedline" style="border-bottom:none;border-top:2px solid var(--ink);margin-top:6px;padding-top:8px;"><span style="font-weight:600;">Total / month</span><b id="houseTotLine" style="font-size:17px;color:var(--amber);"></b></div>
+      </div>
     </div>
     <div class="ef-sub" style="margin-top:6px;">Property-tax rates vary a lot by state and town (roughly 0.3%–2.2% of value/yr). Look up your town's rate and enter it above.</div>
   </div>
 
   <!-- STARTING POSITION -->
   <div class="panel" id="startPanel">
-    <h3>Starting position — funding the purchase <span class="rt" id="reserveTop">$0</span></h3>
-    <p class="desc">Your accounts today, minus what it takes to buy. Cash and savings get spent first because selling investments triggers capital-gains tax; whatever's left becomes your day-one emergency fund below.</p>
-    <div class="start-grid">
-      <div>
-        <div class="field"><span>Checking (cash on hand)</span><div class="dollar"><input type="text" inputmode="numeric" class="money-in" id="checking" value="20000"></div></div>
-        <div class="field"><span>Savings</span><div class="dollar"><input type="text" inputmode="numeric" class="money-in" id="savings" value="80000"></div></div>
-        <div class="field"><span>Invested (taxable brokerage)</span><div class="dollar"><input type="text" inputmode="numeric" class="money-in" id="invested" value="50000"></div></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;opacity:0.75;">
-          <div class="ctrl" style="margin-bottom:0;"><label style="font-size:11.5px;">Gain % <b id="lgain" style="font-size:11.5px;">40%</b></label>
-            <input type="range" id="gain" min="0" max="100" step="5" value="40" style="height:3px;"></div>
-          <div class="ctrl" style="margin-bottom:0;"><label style="font-size:11.5px;">Cap-gains rate <b id="lcg" style="font-size:11.5px;">23.8%</b></label>
-            <input type="range" id="cg" min="0" max="45" step="0.5" value="23.8" style="height:3px;"></div>
-        </div>
-        <div class="field"><span>Closing costs</span><div class="dollar"><input type="text" inputmode="numeric" class="money-in" id="closing" value="15000"></div></div>
-        <div class="field" style="margin-bottom:4px;"><span>Moving costs</span><div class="dollar"><input type="text" inputmode="numeric" class="money-in" id="moving" value="5000"></div></div>
+    <h3>Starting position — funding the purchase</h3>
+
+    <div class="fund-summary">
+      <div class="fixedline" style="font-weight:600;"><span>Total cash + investments</span><b id="fTotal"></b></div>
+      <div class="fixedline" style="padding-left:16px;border-bottom-style:dotted;">
+        <span>Checking</span>
+        <span style="font-family:var(--mono);font-variant-numeric:tabular-nums;"><span style="color:var(--ink-soft);font-size:12px;">$</span><input type="text" inputmode="numeric" class="money-in" id="checking" value="20000" style="width:80px;border:1px solid var(--line);border-radius:3px;padding:3px 6px;font-family:var(--mono);font-size:13px;text-align:right;background:var(--paper);"></span>
       </div>
-      <div class="fund-summary">
-        <div class="fixedline"><span>Total cash + investments</span><b id="fTotal"></b></div>
-        <div class="fixedline"><span>– Down payment</span><b id="fDown"></b></div>
-        <div class="fixedline"><span>– Closing costs</span><b id="fClose"></b></div>
-        <div class="fixedline"><span>– Moving costs</span><b id="fMove"></b></div>
-        <div class="fixedline"><span>– Cap-gains tax on sold investments</span><b id="fCG"></b></div>
-        <div class="fixedline reserve-line"><span>Cash reserve after closing</span><b id="fReserve"></b></div>
-        <div class="ef-sub" id="fundNote" style="margin-top:11px;"></div>
+      <div class="fixedline" style="padding-left:16px;border-bottom-style:dotted;">
+        <span>Savings</span>
+        <span style="font-family:var(--mono);font-variant-numeric:tabular-nums;"><span style="color:var(--ink-soft);font-size:12px;">$</span><input type="text" inputmode="numeric" class="money-in" id="savings" value="80000" style="width:80px;border:1px solid var(--line);border-radius:3px;padding:3px 6px;font-family:var(--mono);font-size:13px;text-align:right;background:var(--paper);"></span>
       </div>
+      <div class="fixedline" style="padding-left:16px;">
+        <span>Invested (brokerage)</span>
+        <span style="font-family:var(--mono);font-variant-numeric:tabular-nums;"><span style="color:var(--ink-soft);font-size:12px;">$</span><input type="text" inputmode="numeric" class="money-in" id="invested" value="50000" style="width:80px;border:1px solid var(--line);border-radius:3px;padding:3px 6px;font-family:var(--mono);font-size:13px;text-align:right;background:var(--paper);"></span>
+      </div>
+      <div class="fixedline"><span>– Down payment</span><b id="fDown"></b></div>
+      <div class="fixedline">
+        <span>– Closing costs</span>
+        <span style="font-family:var(--mono);font-variant-numeric:tabular-nums;"><span style="color:var(--ink-soft);font-size:12px;">$</span><input type="text" inputmode="numeric" class="money-in" id="closing" value="15000" style="width:80px;border:1px solid var(--line);border-radius:3px;padding:3px 6px;font-family:var(--mono);font-size:13px;text-align:right;background:var(--paper);"></span>
+      </div>
+      <div class="fixedline">
+        <span>– Moving costs</span>
+        <span style="font-family:var(--mono);font-variant-numeric:tabular-nums;"><span style="color:var(--ink-soft);font-size:12px;">$</span><input type="text" inputmode="numeric" class="money-in" id="moving" value="5000" style="width:80px;border:1px solid var(--line);border-radius:3px;padding:3px 6px;font-family:var(--mono);font-size:13px;text-align:right;background:var(--paper);"></span>
+      </div>
+      <div class="fixedline"><span>– Cap-gains tax on sold investments</span><b id="fCG"></b></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:4px 0;opacity:0.65;">
+        <div class="ctrl" style="margin-bottom:0;"><label style="font-size:11.5px;">Gain % <b id="lgain" style="font-size:11.5px;">40%</b></label>
+          <input type="range" id="gain" min="0" max="100" step="5" value="40" style="height:3px;"></div>
+        <div class="ctrl" style="margin-bottom:0;"><label style="font-size:11.5px;">Cap-gains rate <b id="lcg" style="font-size:11.5px;">23.8%</b></label>
+          <input type="range" id="cg" min="0" max="45" step="0.5" value="23.8" style="height:3px;"></div>
+      </div>
+      <div class="fixedline reserve-line"><span>Cash reserve after closing</span><b id="fReserve" style="font-size:17px;color:var(--amber);"></b></div>
     </div>
   </div>
 
   <!-- INCOME -->
   <div class="panel" id="incomePanel" style="margin-top:22px;">
-    <h3>Income &amp; take-home <span class="rt" id="netTop" style="margin-left:auto;">$0/mo</span></h3>
+    <h3>Income &amp; take-home</h3>
     <div style="display:flex;align-items:center;gap:10px;margin:0 0 12px;flex-wrap:wrap;">
       <label for="state" style="font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);font-weight:600;">🏛 Your state</label>
       <select id="state" style="font-family:var(--sans);font-size:14px;padding:7px 10px;border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--ink);cursor:pointer;"></select>
@@ -209,8 +216,8 @@
         <h4>Earner 1 <span class="tot" id="wTot"></span></h4>
         <div class="field"><span>Base salary</span><div class="dollar"><input type="text" inputmode="numeric" class="money-in" id="wBase" value="95000"></div></div>
         <div class="field"><span>Bonus (% of base)</span><div class="pct"><input type="number" id="wBonusPct" value="0"></div></div>
-        <div class="field"><span>401(k) contribution (% of base)</span><div class="pct"><input type="number" id="wK401Pct" value="8" step="0.1"></div></div>
-        <div class="field" style="margin-bottom:6px;"><span>Employer match (% of base)</span><div class="pct"><input type="number" id="wMatchPct" value="3"></div></div>
+        <div class="field" style="margin-bottom:6px;"><span>401(k) employee contribution (% of base)</span><div class="pct"><input type="number" id="wK401Pct" value="8" step="0.1"></div></div>
+        <input type="hidden" id="wMatchPct" value="0">
         <div class="k401bar" id="wBar"><div class="fill" style="width:0%"></div></div>
         <div class="k401note" id="wNote"></div>
       </div>
@@ -220,8 +227,8 @@
         <h4>Earner 2 <span class="tot" id="m1Tot"></span></h4>
         <div class="field"><span>Base salary</span><div class="dollar"><input type="text" inputmode="numeric" class="money-in" id="m1Base" value="85000"></div></div>
         <div class="field"><span>Bonus (% of base)</span><div class="pct"><input type="number" id="m1BonusPct" value="0"></div></div>
-        <div class="field"><span>401(k) contribution (% of base)</span><div class="pct"><input type="number" id="m1K401Pct" value="8" step="0.1"></div></div>
-        <div class="field" style="margin-bottom:6px;"><span>Employer match (% of base)</span><div class="pct"><input type="number" id="m1MatchPct" value="3"></div></div>
+        <div class="field" style="margin-bottom:6px;"><span>401(k) employee contribution (% of base)</span><div class="pct"><input type="number" id="m1K401Pct" value="8" step="0.1"></div></div>
+        <input type="hidden" id="m1MatchPct" value="0">
         <div class="k401bar" id="m1Bar"><div class="fill" style="width:0%"></div></div>
         <div class="k401note" id="m1Note"></div>
       </div>
@@ -237,7 +244,7 @@
       <div class="fixedline"><span>– State income tax <span id="iMaState" style="font-family:var(--mono);font-size:11px;color:var(--ink-soft);"></span></span><b id="iMa"></b></div>
       <div class="fixedline"><span>– Other deductions <em style="font-size:11px;color:var(--ink-soft);">(annual)</em></span><span style="font-family:var(--mono);font-variant-numeric:tabular-nums;"><span style="color:var(--ink-soft);font-size:12px;">$</span><input type="text" inputmode="numeric" class="money-in" id="dPFML" value="0" style="width:72px;border:1px solid var(--line);border-radius:3px;padding:3px 6px;font-family:var(--mono);font-size:13px;text-align:right;background:var(--paper);"></span></div>
       <div class="fixedline reserve-line"><span>Take-home / year</span><b id="iNet"></b></div>
-      <div class="fixedline" style="border-bottom:none;padding-top:6px;"><span>Take-home / month (avg)</span><b id="iNetMo" style="color:var(--teal);"></b></div>
+      <div class="fixedline" style="border-bottom:none;padding-top:6px;"><span>Take-home / month (avg)</span><b id="iNetMo" style="font-size:17px;color:var(--amber);"></b></div>
     </div>
   </div>
 
@@ -245,7 +252,7 @@
     <!-- LEFT -->
     <div>
       <div class="panel">
-        <h3>Your monthly expenses <span class="rt" id="expTot">$0</span></h3>
+        <h3>Your monthly expenses <span class="rt" id="expTot" style="color:var(--amber);">$0</span></h3>
         <p class="desc">Everything except the house. Change the numbers, rename a line, delete what doesn't apply, or add your own (e.g. "Internet · $100").</p>
         <div id="expList"></div>
         <button class="addbtn" id="addExp">+ Add an expense line</button>
@@ -260,7 +267,7 @@
           <div class="stat"><div class="k">Take-home</div><div class="v" id="rNet">$0</div><div class="hint">per month</div></div>
           <div class="stat"><div class="k">Total outflow</div><div class="v" id="rOut">$0</div><div class="hint" id="rOutH">house $0 + expenses $0</div></div>
           <div class="stat"><div class="k">House as % of take-home</div><div class="v" id="rPct">0%</div><div class="hint" id="rPctH">under 28% is roomy</div></div>
-          <div class="stat"><div class="k">Left over</div><div class="v pos" id="rSurp">$0</div><div class="hint">to save/invest</div></div>
+          <div class="stat"><div class="k">Left over</div><div class="v" id="rSurp" style="color:var(--amber);">$0</div><div class="hint">to save/invest</div></div>
         </div>
       </div>
 
@@ -389,7 +396,6 @@ function calc(){
   $('fPI').textContent=fmt(pi); $('fTax').textContent=fmt(propTax/12);
   $('fIns').textContent=fmt(insY/12); $('fMaint').textContent=fmt(maint/12);
   $('fPMI').textContent = pmiMo>0 ? fmt(pmiMo) : '—';
-  $('houseTot').textContent=fmt(house)+'/mo';
   $('houseTotLine').textContent=fmt(house)+'/mo';
   $('lprice').textContent = price>=1e6 ? '$'+(price/1e6).toFixed(2)+'M' : '$'+Math.round(price/1000)+'k';
   $('ldp').textContent=Math.round(dpPct*100)+'% · '+fmtK(down);
@@ -484,7 +490,6 @@ function calc(){
   $('iMaState').textContent='('+stateInfo[0]+')';
   $('iNet').textContent=fmt(netYr);
   $('iNetMo').textContent=fmt(takehome);
-  $('netTop').textContent=fmt(takehome)+'/mo';
   $('stateRateNote').textContent = stateRate===0
     ? stateInfo[0]+' has no state income tax.'
     : stateInfo[0]+': ~'+(stateRate*100).toFixed(2).replace(/\.?0+$/,'')+'% (planning estimate)';
@@ -509,21 +514,9 @@ function calc(){
   $('lcg').textContent=(cgRate*100).toFixed(1)+'%';
   $('fTotal').textContent=fmt(totalCash);
   $('fDown').textContent='–'+fmt(down);
-  $('fClose').textContent='–'+fmt(closing);
-  $('fMove').textContent='–'+fmt(moving);
   $('fCG').textContent='–'+fmt(cgTax);
-  const rEl=$('fReserve'); rEl.textContent=fmt(reserveAfter); rEl.className=reserveAfter<0?'neg':'';
-  const rt=$('reserveTop'); rt.textContent=fmt(reserveAfter)+' left'; rt.style.color=reserveAfter<0?'var(--red)':'var(--teal)';
+  const rEl=$('fReserve'); rEl.textContent=fmt(reserveAfter); rEl.style.color=reserveAfter<0?'var(--red)':'var(--amber)';
 
-  let note='';
-  if(shortfall>0){
-    note='⚠ You\'re short '+fmt(shortfall)+' — cash, savings and investments together don\'t cover the purchase. You\'d need a smaller down payment, a portfolio loan, or another source.';
-  } else if(useInv>0){
-    note='Covered by '+fmt(useCheck+useSav)+' of cash/savings plus selling '+fmt(useInv)+' of investments (~'+fmt(cgTax)+' cap-gains tax on the gain). What\'s left is '+fmt(leftoverInvested)+' still invested'+(leftoverLiquid>0?' + '+fmt(leftoverLiquid)+' cash':'')+' — that\'s volatile, so consider moving some to cash.';
-  } else {
-    note='Fully covered by cash + savings, investments untouched. Reserve is '+fmt(leftoverLiquid)+' liquid + '+fmt(leftoverInvested)+' still invested, no tax triggered.';
-  }
-  $('fundNote').textContent=note;
   $('startEFhint').textContent = shortfall>0 ? 'can\'t fully fund the purchase at these inputs'
     : useInv>0 ? 'incl. '+fmt(leftoverInvested)+' still invested; ~'+fmt(cgTax)+' tax netted out'
     : 'fully funded from cash + savings';
@@ -539,7 +532,7 @@ function calc(){
   $('rOutH').textContent='house '+fmt(house)+' + expenses '+fmt(expTot);
   $('rPct').textContent=Math.round(pct)+'%';
   $('rPctH').textContent=pct<28?'roomy':(pct<36?'reasonable':'getting heavy');
-  const sEl=$('rSurp'); sEl.textContent=fmt(surplus); sEl.className='v '+(surplus<0?'neg':'pos');
+  const sEl=$('rSurp'); sEl.textContent=fmt(surplus); sEl.style.color=surplus<0?'var(--red)':'var(--amber)';
 
   $('vsurplus').textContent=fmt(surplus); $('vsurplus').className='big'+(surplus<0?' neg':'');
   const v=$('verdict'); v.classList.remove('warn','bad');
