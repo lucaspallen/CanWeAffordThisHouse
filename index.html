@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Household Budget &amp; Affordability Planner</title>
+<style>
+  :root{
+    --paper:#FAFAF7; --ink:#19282D; --ink-soft:#54636A; --line:#E4E2DA; --line2:#EFEDE6;
+    --teal:#2F6B5E; --teal-soft:#E8F1ED; --amber:#B9772A; --amber-soft:#F7EEDE;
+    --red:#AA4338; --red-soft:#F5E5E2; --card:#FFFFFF;
+    --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.5;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1120px;margin:0 auto;padding:30px 20px 90px;}
+  header{border-bottom:2px solid var(--ink);padding-bottom:16px;}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:7px;}
+  h1{font-size:28px;font-weight:650;letter-spacing:-.02em;margin:0;}
+  h1 .accent{color:var(--teal);}
+  .sub{color:var(--ink-soft);font-size:13.5px;margin-top:6px;max-width:700px;}
+  .toolbar{margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+  .savebtn{border:1px solid var(--teal);color:#fff;background:var(--teal);border-radius:5px;padding:9px 15px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);}
+  .savebtn:hover{background:#255649;}
+  .savehint{font-size:12px;color:var(--ink-soft);}
+
+  .verdict{margin-top:22px;border:1px solid var(--line);border-left:5px solid var(--teal);background:var(--card);border-radius:5px;padding:18px 20px;display:flex;gap:20px;align-items:center;flex-wrap:wrap;}
+  .verdict.warn{border-left-color:var(--amber);} .verdict.bad{border-left-color:var(--red);}
+  .vtag{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);font-weight:600;}
+  .verdict.warn .vtag{color:var(--amber);} .verdict.bad .vtag{color:var(--red);}
+  .verdict h2{font-size:18px;margin:4px 0;font-weight:600;letter-spacing:-.01em;}
+  .verdict p{margin:0;font-size:13.5px;color:var(--ink-soft);max-width:560px;}
+  .vnum{margin-left:auto;text-align:right;}
+  .vnum .big{font-family:var(--mono);font-size:30px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.02em;}
+  .vnum .big.neg{color:var(--red);}
+  .vnum .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-soft);}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:26px;align-items:start;}
+  @media(max-width:820px){.grid{grid-template-columns:1fr;}}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:5px;padding:18px 18px 8px;margin-bottom:20px;}
+  .panel h3{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 4px;font-weight:600;display:flex;justify-content:space-between;align-items:baseline;}
+  .panel h3 .rt{font-family:var(--mono);color:var(--ink);font-size:14px;font-variant-numeric:tabular-nums;letter-spacing:0;}
+  .panel .desc{font-size:12px;color:var(--ink-soft);margin:0 0 14px;}
+
+  .ctrl{margin-bottom:15px;}
+  .ctrl label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;}
+  .ctrl label b{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:600;}
+  input[type=range]{width:100%;accent-color:var(--teal);height:4px;cursor:pointer;}
+
+  .exp-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+  .exp-row input.lab{flex:1;font-size:13px;padding:7px 9px;border:1px solid var(--line);border-radius:4px;background:var(--paper);}
+  .exp-row .dollar{position:relative;width:118px;}
+  .exp-row .dollar:before{content:"$";position:absolute;left:9px;top:7px;color:var(--ink-soft);font-family:var(--mono);font-size:13px;}
+  .exp-row input.amt{width:100%;font-family:var(--mono);font-size:13px;padding:7px 9px 7px 20px;border:1px solid var(--line);border-radius:4px;background:var(--paper);font-variant-numeric:tabular-nums;text-align:right;}
+  .exp-row button.del{border:none;background:none;color:var(--ink-soft);cursor:pointer;font-size:17px;line-height:1;padding:2px 5px;border-radius:4px;}
+  .exp-row button.del:hover{background:var(--red-soft);color:var(--red);}
+  input:focus{outline:2px solid var(--teal);outline-offset:1px;}
+  .addbtn{margin-top:6px;margin-bottom:10px;border:1px dashed var(--teal);color:var(--teal);background:var(--teal-soft);border-radius:4px;padding:8px 12px;font-size:13px;font-weight:600;cursor:pointer;width:100%;font-family:var(--sans);}
+  .addbtn:hover{background:#dceae4;}
+  .fixedline{display:flex;justify-content:space-between;font-size:13px;padding:7px 2px;border-bottom:1px dashed var(--line2);}
+  .fixedline b{font-family:var(--mono);font-variant-numeric:tabular-nums;}
+  .fixedline b.neg{color:var(--red);}
+
+  .field{display:flex;flex-direction:column;gap:4px;margin-bottom:13px;}
+  .field span{font-size:12.5px;color:var(--ink-soft);}
+  .field .dollar,.field .pct{position:relative;}
+  .field .dollar:before{content:"$";position:absolute;left:10px;top:8px;color:var(--ink-soft);font-family:var(--mono);}
+  .field .pct:after{content:"%";position:absolute;right:11px;top:8px;color:var(--ink-soft);font-family:var(--mono);}
+  .field input{font-family:var(--mono);font-size:14px;padding:8px 10px 8px 22px;border:1px solid var(--line);border-radius:4px;background:var(--paper);font-variant-numeric:tabular-nums;width:100%;}
+  .field .pct input{padding-left:10px;padding-right:24px;}
+
+  .stat-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .stat{background:var(--paper);border:1px solid var(--line);border-radius:5px;padding:13px 14px;}
+  .stat .k{font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-soft);}
+  .stat .v{font-family:var(--mono);font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;margin-top:5px;letter-spacing:-.01em;}
+  .stat .v.neg{color:var(--red);} .stat .v.pos{color:var(--teal);}
+  .stat .hint{font-size:11px;color:var(--ink-soft);margin-top:3px;}
+
+  .start-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+  @media(max-width:640px){.start-grid{grid-template-columns:1fr;}}
+  .fund-summary{background:var(--paper);border:1px solid var(--line);border-radius:5px;padding:6px 16px 14px;align-self:start;}
+  .fund-summary .reserve-line{border-bottom:none;border-top:2px solid var(--ink);margin-top:5px;padding-top:10px;font-weight:600;font-size:14px;}
+  .fund-summary .reserve-line b{font-size:16px;}
+
+  .earners{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px;}
+  @media(max-width:820px){.earners{grid-template-columns:1fr;}}
+  .earner{background:var(--paper);border:1px solid var(--line);border-radius:5px;padding:13px 14px;}
+  .earner h4{margin:0 0 10px;font-size:13.5px;font-weight:600;letter-spacing:-.01em;display:flex;justify-content:space-between;align-items:baseline;}
+  .earner h4 .tot{font-family:var(--mono);font-size:12.5px;font-weight:600;color:var(--teal);font-variant-numeric:tabular-nums;}
+  .earner .field{margin-bottom:9px;}
+  .earner .field span{font-size:11.5px;}
+  .earner .field input{font-size:13px;padding:6px 9px 6px 20px;}
+  .earner .field .pct input{padding-left:9px;padding-right:22px;}
+  .earner .field .pct:after{top:7px;font-size:12px;}
+  .earner .field .dollar:before{top:7px;font-size:12px;}
+  .earner .k401bar{background:#EFEDE6;border-radius:3px;height:5px;margin-top:3px;overflow:hidden;}
+  .earner .k401bar .fill{height:100%;background:var(--teal);transition:width .2s;}
+  .earner .k401bar.capped .fill{background:var(--amber);}
+  .earner .k401note{font-size:10.5px;color:var(--ink-soft);margin-top:4px;line-height:1.35;}
+  .earner .k401note.capped{color:var(--amber);}
+
+  .tax-breakdown{background:var(--paper);border:1px solid var(--line);border-radius:5px;padding:14px 16px;margin-top:6px;}
+  .tax-breakdown h4{font-family:var(--mono);font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 10px;font-weight:600;display:flex;justify-content:space-between;}
+  .tax-breakdown h4 .rate{color:var(--ink);letter-spacing:0;font-family:var(--mono);}
+  .tax-row{display:flex;justify-content:space-between;font-size:12.5px;padding:5px 0;border-bottom:1px dashed var(--line2);}
+  .tax-row:last-child{border-bottom:none;}
+  .tax-row .lbl{color:var(--ink-soft);}
+  .tax-row .amt{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:600;}
+  .tax-row .rt{font-family:var(--mono);font-size:11px;color:var(--ink-soft);margin-left:6px;font-variant-numeric:tabular-nums;}
+  .retbar{flex:1;background:var(--teal);border-radius:2px 2px 0 0;min-height:2px;transition:height .2s;cursor:default;position:relative;}
+  .retbar.draw{background:var(--amber);}
+  .retbar.zero{background:var(--red);opacity:.6;}
+  .retbar:hover{filter:brightness(1.15);}
+  .retbar .tip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-family:var(--mono);font-size:10.5px;padding:4px 7px;border-radius:3px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;z-index:2;}
+  .retbar:hover .tip{opacity:1;}
+  #retChartLabels span{flex:1;text-align:center;}
+
+  .ef-headline{font-family:var(--mono);font-size:30px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.02em;color:var(--teal);margin:4px 0;}
+  .ef-headline.slow{color:var(--amber);}
+  .progress{height:12px;background:var(--paper);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:12px 0 6px;}
+  .progress .fill{height:100%;background:linear-gradient(90deg,var(--teal),#5a917f);border-radius:8px;transition:width .3s;}
+  .ef-sub{font-size:12.5px;color:var(--ink-soft);}
+
+  footer{margin-top:38px;font-size:11.5px;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:16px;line-height:1.55;}
+  .pill{display:inline-block;font-family:var(--mono);font-size:10px;padding:1px 7px;border-radius:20px;background:var(--teal-soft);color:var(--teal);margin-right:5px;letter-spacing:.05em;}
+  b.money{font-family:var(--mono);font-variant-numeric:tabular-nums;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Household affordability &amp; retirement planner</div>
+    <h1>Can we afford the house, and how fast do we <span class="accent">build savings?</span></h1>
+    <div class="sub">A free planning tool for couples. Everything below is live and editable — start with income, then how you'll fund the purchase, then the month-to-month. Nothing is saved or sent anywhere; it all runs in your browser.</div>
+    <div class="toolbar">
+      <button class="savebtn" id="saveBtn">⬇ Save HTML with my numbers</button>
+      <span class="savehint">Typing changes only lives in the browser — click this to bake your edits into a file you can put on GitHub.</span>
+    </div>
+  </header>
+
+  <div class="verdict" id="verdict">
+    <div>
+      <div class="vtag" id="vtag">Affordable</div>
+      <h2 id="vhead">Comfortable month to month</h2>
+      <p id="vbody"></p>
+    </div>
+    <div class="vnum"><div class="big" id="vsurplus">$0</div><div class="lbl">left over / month</div></div>
+  </div>
+
+  <!-- INCOME -->
+  <div class="panel" id="incomePanel" style="margin-top:22px;">
+    <h3>Income &amp; take-home <span class="rt" id="netTop" style="margin-left:auto;">$0/mo</span></h3>
+    <div style="display:flex;align-items:center;gap:10px;margin:0 0 12px;flex-wrap:wrap;">
+      <label for="state" style="font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);font-weight:600;">🏛 Your state</label>
+      <select id="state" style="font-family:var(--sans);font-size:14px;padding:7px 10px;border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--ink);cursor:pointer;"></select>
+      <span class="ef-sub" id="stateRateNote"></span>
+    </div>
+    <div class="earners" style="grid-template-columns:repeat(2,1fr);">
+      <!-- SPOUSE 1 -->
+      <div class="earner">
+        <h4>Earner 1 <span class="tot" id="wTot"></span></h4>
+        <div class="field"><span>Base salary</span><div class="dollar"><input type="text" inputmode="numeric" class="money-in" id="wBase" value="95000"></div></div>
+        <div class="field"><span>Bonus (% of base)</span><div class="pct"><input type="number" id="wBonusPct" value="0"></div></div>
+        <div class="field"><span>401(k) contribution (% of base)</span><div class="pct"><input type="number" id="wK401Pct" value="8" step="0.1"></div></div>
+        <div class="field" style="margin-bottom:6px;"><span>Employer match (% of base)</span><div class="pct"><input type="number" id="wMatchPct" value="3"></div></div>
+        <div class="k401bar" id="wBar"><div class="fill" style="width:0%"></div></div>
+        <div class="k401note" id="wNote"></div>
+      </div>
+
+      <!-- SPOUSE 2 -->
+      <div class="earner">
+        <h4>Earner 2 <span class="tot" id="m1Tot"></span></h4>
+        <div class="field"><span>Base salary</span><div class="dollar"><input type="text" inputmode="numeric" class="money-in" id="m1Base" value="85000"></div></div>
+        <div class="field"><span>Bonus (% of base)</span><div class="pct"><input type="number" id="m1BonusPct" value="0"></div></div>
+        <div class="field"><span>401(k) contribution (% of base)</span><div class="pct"><input type="number" id="m1K401Pct" value="8" step="0.1"></div></div>
+        <div class="field" style="margin-bottom:6px;"><span>Employer match (% of base)</span><div class="pct"><input type="number" id="m1MatchPct" value="3"></div></div>
+        <div class="k401bar" id="m1Bar"><div class="fill" style="width:0%"></div></div>
+        <div class="k401note" id="m1Note"></div>
+      </div>
+    </div>
+
+    <!-- DEDUCTIONS -->
+    <div class="panel" style="background:var(--paper);margin:0 0 16px;">
+      <h3>Payroll deductions <span class="rt" id="dedTot">$0/yr</span></h3>
+      <p class="desc" style="margin-bottom:12px;">Check your paystubs for these. Pre-tax items reduce taxable income (federal + state + FICA). HSA is pre-tax too <em>and</em> triple-tax-advantaged for medical spending. After-tax items reduce take-home only.</p>
+      <div class="start-grid">
+        <div>
+          <div style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);font-weight:600;margin-bottom:8px;">Pre-tax (reduces taxes)</div>
+          <div class="field"><span>Health/dental/vision premiums — Earner 1 (annual)</span><div class="dollar"><input type="text" inputmode="numeric" class="money-in" id="dWifeHealth" value="6000"></div></div>
+          <div class="field"><span>Health/dental/vision premiums — Earner 2 (annual)</span><div class="dollar"><input type="text" inputmode="numeric" class="money-in" id="dDivHealth" value="0"></div></div>
+          <div class="field"><span>HSA contribution (annual)</span><div class="dollar"><input type="text" inputmode="numeric" class="money-in" id="dHSA" value="0"></div></div>
+          <div class="field"><span>Employer HSA contribution (annual, into HSA, not paycheck)</span><div class="dollar"><input type="text" inputmode="numeric" class="money-in" id="dHSAer" value="0"></div></div>
+        </div>
+        <div>
+          <div style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);font-weight:600;margin-bottom:8px;">After-tax (reduces take-home only)</div>
+          <div class="field"><span>State paid-leave insurance, if any (annual)</span><div class="dollar"><input type="text" inputmode="numeric" class="money-in" id="dPFML" value="0"></div></div>
+          <div class="field"><span>Voluntary insurance (life, AD&amp;D, critical illness, etc.)</span><div class="dollar"><input type="text" inputmode="numeric" class="money-in" id="dVolIns" value="0"></div></div>
+          <div class="field"><span>Extra federal withholding (annual)</span><div class="dollar"><input type="text" inputmode="numeric" class="money-in" id="dExtraWH" value="0"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="start-grid">
+      <div>
+        <div class="fund-summary" style="margin:0;">
+          <div class="fixedline"><span>Combined gross</span><b id="iGross"></b></div>
+          <div class="fixedline"><span>– Your 401(k) contributions</span><b id="iK401"></b></div>
+          <div class="fixedline"><span>– Pre-tax health &amp; HSA</span><b id="iHealth"></b></div>
+          <div class="fixedline"><span>Taxable income (federal)</span><b id="iTaxable"></b></div>
+          <div class="fixedline"><span>– Federal income tax</span><b id="iFed"></b></div>
+          <div class="fixedline"><span>– FICA (Soc. Sec. + Medicare)</span><b id="iFica"></b></div>
+          <div class="fixedline"><span>– State income tax <span id="iMaState" style="font-family:var(--mono);font-size:11px;color:var(--ink-soft);"></span></span><b id="iMa"></b></div>
+          <div class="fixedline"><span>– After-tax deductions</span><b id="iAfterTax"></b></div>
+          <div class="fixedline reserve-line"><span>Take-home / year</span><b id="iNet"></b></div>
+          <div class="fixedline" style="border-bottom:none;padding-top:6px;"><span>Take-home / month (avg)</span><b id="iNetMo" style="color:var(--teal);"></b></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="tax-breakdown">
+          <h4>Tax breakdown <span class="rate" id="effRate">effective 0%</span></h4>
+          <div class="tax-row"><span class="lbl">Federal income tax <span class="rt" id="fedRt"></span></span><span class="amt" id="tbFed">$0</span></div>
+          <div class="tax-row"><span class="lbl">Social Security (6.2% up to $184,500 each)</span><span class="amt" id="tbSS">$0</span></div>
+          <div class="tax-row"><span class="lbl">Medicare (1.45% + 0.9% surtax over $250k)</span><span class="amt" id="tbMed">$0</span></div>
+          <div class="tax-row"><span class="lbl" id="tbMALbl">State income tax</span><span class="amt" id="tbMA">$0</span></div>
+          <div class="tax-row" style="margin-top:6px;border-top:1px solid var(--line);padding-top:8px;"><span class="lbl" style="font-weight:600;color:var(--ink);">Total tax</span><span class="amt" id="tbTot">$0</span></div>
+        </div>
+        <div class="tax-breakdown" style="margin-top:12px;">
+          <h4>Retirement &amp; HSA flows <span class="rate" id="retTot">$0/yr</span></h4>
+          <div class="tax-row"><span class="lbl">Your 401(k) contributions</span><span class="amt" id="tbYourK">$0</span></div>
+          <div class="tax-row"><span class="lbl">Employer 401(k) match (free money)</span><span class="amt" id="tbMatch">$0</span></div>
+          <div class="tax-row"><span class="lbl">HSA contributions (you + employer)</span><span class="amt" id="tbHSA">$0</span></div>
+          <div class="ef-sub" style="margin-top:8px;">The $24,500 IRS cap is on your own 401(k) contributions only, per person across all jobs. Matches stack on top. HSA is separate and grows tax-free for medical expenses (or acts like a bonus retirement account after 65).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STARTING POSITION -->
+  <div class="panel" id="startPanel">
+    <h3>Starting position — funding the purchase <span class="rt" id="reserveTop">$0</span></h3>
+    <p class="desc">Your accounts today, minus what it takes to buy. Cash and savings get spent first because selling investments triggers capital-gains tax; whatever's left becomes your day-one emergency fund below. Down payment is set by the slider in "The house."</p>
+    <div class="start-grid">
+      <div>
+        <div class="field"><span>Checking (cash on hand)</span><div class="dollar"><input type="text" inputmode="numeric" class="money-in" id="checking" value="20000"></div></div>
+        <div class="field"><span>Savings</span><div class="dollar"><input type="text" inputmode="numeric" class="money-in" id="savings" value="80000"></div></div>
+        <div class="field"><span>Invested (taxable brokerage)</span><div class="dollar"><input type="text" inputmode="numeric" class="money-in" id="invested" value="50000"></div></div>
+        <div class="ctrl"><label>Of the invested money, % that is gain <b id="lgain">40%</b></label>
+          <input type="range" id="gain" min="0" max="100" step="5" value="40"></div>
+        <div class="ctrl"><label>Cap-gains rate on sold investments <b id="lcg">23.8%</b></label>
+          <input type="range" id="cg" min="0" max="45" step="0.5" value="23.8"></div>
+        <div class="field"><span>Closing costs</span><div class="dollar"><input type="text" inputmode="numeric" class="money-in" id="closing" value="15000"></div></div>
+        <div class="field" style="margin-bottom:4px;"><span>Moving costs</span><div class="dollar"><input type="text" inputmode="numeric" class="money-in" id="moving" value="5000"></div></div>
+      </div>
+      <div class="fund-summary">
+        <div class="fixedline"><span>Total cash + investments</span><b id="fTotal"></b></div>
+        <div class="fixedline"><span>– Down payment</span><b id="fDown"></b></div>
+        <div class="fixedline"><span>– Closing costs</span><b id="fClose"></b></div>
+        <div class="fixedline"><span>– Moving costs</span><b id="fMove"></b></div>
+        <div class="fixedline"><span>– Cap-gains tax on sold investments</span><b id="fCG"></b></div>
+        <div class="fixedline reserve-line"><span>Cash reserve after closing</span><b id="fReserve"></b></div>
+        <div class="ef-sub" id="fundNote" style="margin-top:11px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- LEFT -->
+    <div>
+      <div class="panel">
+        <h3>Your monthly expenses <span class="rt" id="expTot">$0</span></h3>
+        <p class="desc">Everything except the house. Change the numbers, rename a line, delete what doesn't apply, or add your own (e.g. "Internet · $100").</p>
+        <div id="expList"></div>
+        <button class="addbtn" id="addExp">+ Add an expense line</button>
+      </div>
+
+      <div class="panel">
+        <h3>The house <span class="rt" id="houseTot">$0/mo</span></h3>
+        <div class="fixedline"><span>Mortgage P&amp;I</span><b id="fPI"></b></div>
+        <div class="fixedline"><span>Property tax</span><b id="fTax"></b></div>
+        <div class="fixedline"><span>Homeowners insurance</span><b id="fIns"></b></div>
+        <div class="fixedline"><span>PMI (if &lt;20% down)</span><b id="fPMI"></b></div>
+        <div class="fixedline" style="border-bottom:none;"><span>Maintenance reserve</span><b id="fMaint"></b></div>
+        <div class="ctrl" style="margin-top:14px;"><label>Purchase price <b id="lprice">$600k</b></label>
+          <input type="range" id="price" min="100000" max="3000000" step="10000" value="600000"></div>
+        <div class="ctrl"><label>Down payment <b id="ldp">20%</b></label>
+          <input type="range" id="dp" min="3" max="50" step="1" value="20"></div>
+        <div class="ctrl"><label>Interest rate <b id="lrate">6.50%</b></label>
+          <input type="range" id="rate" min="3" max="9" step="0.025" value="6.5"></div>
+        <div class="ctrl"><label>Property tax rate <b id="lptax">1.10%/yr</b></label>
+          <input type="range" id="ptaxRate" min="0" max="3" step="0.01" value="1.10"></div>
+        <div class="ctrl"><label>Insurance / yr <b id="linsY">$2,400</b></label>
+          <input type="range" id="insY" min="500" max="10000" step="100" value="2400"></div>
+        <div class="ctrl"><label>Maintenance reserve <b id="lmaint">1.5%/yr</b></label>
+          <input type="range" id="maint" min="0" max="3" step="0.1" value="1.5"></div>
+        <div class="ef-sub" style="margin-top:2px;">Property-tax rates vary a lot by state and town (roughly 0.3%–2.2% of value/yr). Look up your town's rate and enter it above.</div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div>
+      <div class="panel">
+        <h3>Monthly cash flow</h3>
+        <div class="stat-row">
+          <div class="stat"><div class="k">Take-home</div><div class="v" id="rNet">$0</div><div class="hint">per month</div></div>
+          <div class="stat"><div class="k">Total outflow</div><div class="v" id="rOut">$0</div><div class="hint">house + expenses</div></div>
+          <div class="stat"><div class="k">House as % of take-home</div><div class="v" id="rPct">0%</div><div class="hint" id="rPctH">under 28% is roomy</div></div>
+          <div class="stat"><div class="k">Left over</div><div class="v pos" id="rSurp">$0</div><div class="hint">to save/invest</div></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Emergency fund</h3>
+        <p class="desc">How long until you're back to a cushion, saving your surplus each month. Your starting reserve comes straight from the funding math above.</p>
+        <div class="stat" style="margin-bottom:14px;"><div class="k">Cash reserve right after closing</div><div class="v" id="startEFdisp">$0</div><div class="hint" id="startEFhint">from your starting position</div></div>
+        <div class="ctrl"><label>Target cushion <b id="lmonths">6 months</b></label>
+          <input type="range" id="months" min="3" max="12" step="1" value="6"></div>
+        <div style="text-align:center;margin-top:6px;">
+          <div class="ef-headline" id="efMonths">—</div>
+          <div class="ef-sub" id="efSub"></div>
+        </div>
+        <div class="progress"><div class="fill" id="efFill" style="width:0%"></div></div>
+        <div class="ef-sub" id="efTarget"></div>
+      </div>
+
+      <div class="panel">
+        <h3>Reality check</h3>
+        <div class="ef-sub" id="reality" style="line-height:1.6;"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span class="pill">notes</span>
+    Take-home is computed live: combined gross minus 401(k) contributions, then 2026 federal tax (married-filing-jointly brackets) with the larger of the standard deduction or itemized (property tax + mortgage interest on the first $750k of loan balance, SALT capped at $40,400), your selected state's income tax, and FICA including the 0.9% Medicare surtax over $250k. State rates are representative planning estimates, not full bracket calculations. PMI is estimated at 0.6%/yr of the loan when down payment is under 20%. This is a planning model, not tax or investment advice.
+  </footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const fmt=n=>(n<0?'–$':'$')+Math.abs(Math.round(n)).toLocaleString();
+const fmtK=n=> Math.abs(n)>=1e6 ? '$'+(n/1e6).toFixed(2)+'M' : '$'+Math.round(n/1000)+'k';
+
+// State income tax — representative effective rate for a ~$150-250k married couple (2026, approximate).
+// Flat-tax states use their flat rate; graduated states use an approximate marginal rate at this income;
+// no-income-tax states are 0. This is a planning estimate, not a filing calculation.
+const STATE_TAX={
+  "AL":["Alabama",0.05],"AK":["Alaska",0],"AZ":["Arizona",0.025],"AR":["Arkansas",0.039],
+  "CA":["California",0.093],"CO":["Colorado",0.044],"CT":["Connecticut",0.055],"DE":["Delaware",0.066],
+  "DC":["District of Columbia",0.085],"FL":["Florida",0],"GA":["Georgia",0.0539],"HI":["Hawaii",0.079],
+  "ID":["Idaho",0.053],"IL":["Illinois",0.0495],"IN":["Indiana",0.03],"IA":["Iowa",0.038],
+  "KS":["Kansas",0.0558],"KY":["Kentucky",0.04],"LA":["Louisiana",0.03],"ME":["Maine",0.0715],
+  "MD":["Maryland",0.055],"MA":["Massachusetts",0.05],"MI":["Michigan",0.0425],"MN":["Minnesota",0.0785],
+  "MS":["Mississippi",0.044],"MO":["Missouri",0.047],"MT":["Montana",0.059],"NE":["Nebraska",0.052],
+  "NV":["Nevada",0],"NH":["New Hampshire",0],"NJ":["New Jersey",0.0637],"NM":["New Mexico",0.049],
+  "NY":["New York",0.0685],"NC":["North Carolina",0.0425],"ND":["North Dakota",0.0225],"OH":["Ohio",0.035],
+  "OK":["Oklahoma",0.0475],"OR":["Oregon",0.099],"PA":["Pennsylvania",0.0307],"RI":["Rhode Island",0.0599],
+  "SC":["South Carolina",0.062],"SD":["South Dakota",0],"TN":["Tennessee",0],"TX":["Texas",0],
+  "UT":["Utah",0.0455],"VT":["Vermont",0.066],"VA":["Virginia",0.0575],"WA":["Washington",0],
+  "WV":["West Virginia",0.0482],"WI":["Wisconsin",0.053],"WY":["Wyoming",0]
+};
+
+let expenses=[
+  {lab:"Childcare / daycare",amt:0},
+  {lab:"Kids' activities & clothing",amt:0},
+  {lab:"Groceries",amt:1300},
+  {lab:"Restaurants & takeout",amt:500},
+  {lab:"Car payment",amt:550},
+  {lab:"Utilities (gas/electric/water)",amt:400},
+  {lab:"Travel (monthly average)",amt:400},
+  {lab:"Household Misc",amt:400},
+  {lab:"Gas / fuel",amt:300},
+  {lab:"Health/medical out-of-pocket",amt:250},
+  {lab:"Internet & phones",amt:250},
+  {lab:"Car insurance",amt:220},
+  {lab:"Car maintenance savings",amt:150},
+  {lab:"Pets",amt:120},
+  {lab:"Subscriptions & streaming",amt:80},
+  {lab:"Credit card debt payment",amt:0},
+];
+
+// ---- restore a saved setup if this file was exported with one ----
+if(window.SAVED_STATE){
+  if(Array.isArray(window.SAVED_STATE.expenses)) expenses=window.SAVED_STATE.expenses;
+}
+
+function fedTax(ti){
+  const b=[[0,.10],[24800,.12],[100800,.22],[211750,.24],[403550,.32],[512450,.35],[768700,.37]];
+  let t=0;
+  for(let i=0;i<b.length;i++){const lo=b[i][0],r=b[i][1],hi=i+1<b.length?b[i+1][0]:Infinity;
+    if(ti>lo)t+=(Math.min(ti,hi)-lo)*r;}
+  return t;
+}
+
+function renderExp(){
+  const list=$('expList'); list.innerHTML='';
+  expenses.forEach((e,i)=>{
+    const row=document.createElement('div'); row.className='exp-row';
+    row.innerHTML='<input class="lab" value="'+String(e.lab).replace(/"/g,'&quot;')+'" data-i="'+i+'" data-f="lab">'+
+      '<div class="dollar"><input class="amt" type="number" value="'+e.amt+'" data-i="'+i+'" data-f="amt"></div>'+
+      '<button class="del" data-i="'+i+'" title="Remove">×</button>';
+    list.appendChild(row);
+  });
+  list.querySelectorAll('input').forEach(inp=>inp.addEventListener('input',e=>{
+    const i=+e.target.dataset.i, f=e.target.dataset.f;
+    expenses[i][f]= f==='amt' ? (+e.target.value||0) : e.target.value;
+    calc();
+  }));
+  list.querySelectorAll('.del').forEach(b=>b.addEventListener('click',e=>{
+    expenses.splice(+e.target.dataset.i,1); renderExp(); calc();
+  }));
+}
+$('addExp').addEventListener('click',()=>{expenses.push({lab:"New expense",amt:0});renderExp();calc();
+  const labs=document.querySelectorAll('#expList .lab'); labs[labs.length-1].focus(); labs[labs.length-1].select();});
+
+function calc(){
+  // ---- house ----
+  const price=+$('price').value, dpPct=+$('dp').value/100, rate=+$('rate').value/100;
+  const insY=+$('insY').value, maintPct=+$('maint').value/100;
+  const ptaxRate=+$('ptaxRate').value/100;
+  const down=price*dpPct, loan=price-down, mr=rate/12;
+  const pi=loan*mr/(1-Math.pow(1+mr,-360));
+  const propTax=price*ptaxRate, maint=price*maintPct;
+  // PMI: roughly 0.6%/yr of the loan when down payment < 20%
+  const pmiMo = dpPct<0.20 ? (loan*0.006)/12 : 0;
+  const house=pi+propTax/12+insY/12+maint/12+pmiMo;
+  let bal=loan,yr1=0; for(let m=0;m<12;m++){const it=bal*mr;yr1+=it;bal-=(pi-it);}
+  const mortDed=yr1*Math.min(1,750000/loan);
+
+  $('fPI').textContent=fmt(pi); $('fTax').textContent=fmt(propTax/12);
+  $('fIns').textContent=fmt(insY/12); $('fMaint').textContent=fmt(maint/12);
+  $('fPMI').textContent = pmiMo>0 ? fmt(pmiMo) : '—';
+  $('houseTot').textContent=fmt(house)+'/mo';
+  $('lprice').textContent = price>=1e6 ? '$'+(price/1e6).toFixed(2)+'M' : '$'+Math.round(price/1000)+'k';
+  $('ldp').textContent=Math.round(dpPct*100)+'% · '+fmtK(down);
+  $('lrate').textContent=(rate*100).toFixed(3).replace(/0+$/,'').replace(/\.$/,'')+'%';
+  $('lptax').textContent=(ptaxRate*100).toFixed(2)+'%/yr';
+  $('linsY').textContent=fmt(insY); $('lmaint').textContent=(maintPct*100).toFixed(1)+'%/yr';
+
+  // ---- income & take-home (two earners) ----
+  const K401_CAP = 24500;   // 2026 IRS 402(g) elective deferral limit per person
+
+  // Earner 1
+  const wBase=numOf('wBase'), wBonus=wBase*(+$('wBonusPct').value/100);
+  const wComp=wBase+wBonus;
+  let wK401=wBase*(+$('wK401Pct').value/100);
+  const wCap=wK401>=K401_CAP; if(wCap) wK401=K401_CAP;
+  const wMatch=wBase*(+$('wMatchPct').value/100);
+
+  // Earner 2
+  const m1Base=numOf('m1Base'), m1Bonus=m1Base*(+$('m1BonusPct').value/100);
+  const m1Comp=m1Base+m1Bonus;
+  let m1K401=m1Base*(+$('m1K401Pct').value/100);
+  const m1Cap=m1K401>=K401_CAP; if(m1Cap) m1K401=K401_CAP;
+  const m1Match=m1Base*(+$('m1MatchPct').value/100);
+
+  // Update earner card UI
+  const setBar=(barId,noteId,contrib,capped)=>{
+    const pctOfCap=Math.min(100,(contrib/K401_CAP)*100);
+    const bar=$(barId); bar.classList.toggle('capped',capped);
+    bar.querySelector('.fill').style.width=pctOfCap+'%';
+    const note=$(noteId); note.classList.toggle('capped',capped);
+    note.textContent=(capped?'⚠ Capped at $24,500 IRS limit · ':'')+
+      '401(k): '+fmt(contrib)+' ('+Math.round(pctOfCap)+'% of $24.5k cap)';
+  };
+  setBar('wBar','wNote',wK401,wCap);
+  setBar('m1Bar','m1Note',m1K401,m1Cap);
+
+  $('wTot').textContent=fmt(wComp);
+  $('m1Tot').textContent=fmt(m1Comp);
+
+  // Totals
+  const gross=wComp+m1Comp;
+  const k401=wK401+m1K401;
+  const match=wMatch+m1Match;
+
+  // Pre-tax deductions (health + HSA)
+  const dWifeHealth=numOf('dWifeHealth'), dDivHealth=numOf('dDivHealth');
+  const dHSA=numOf('dHSA'), dHSAer=numOf('dHSAer');
+  const preTaxHealth=dWifeHealth+dDivHealth+dHSA;   // employer HSA doesn't affect paycheck
+
+  // After-tax deductions (reduce take-home, not taxes)
+  const dPFML=numOf('dPFML'), dVolIns=numOf('dVolIns'), dExtraWH=numOf('dExtraWH');
+  const afterTax=dPFML+dVolIns+dExtraWH;
+
+  // State income tax (rate from dropdown)
+  const stateCode=$('state').value||'MA';
+  const stateInfo=STATE_TAX[stateCode]||['Massachusetts',0.05];
+  const stateRate=stateInfo[1];
+  const stateTaxable=Math.max(0,gross-k401-preTaxHealth);   // approx; graduated states simplified to flat rate
+  const maTax=stateRate*stateTaxable;
+
+  // Federal — pre-tax health reduces AGI, FICA wages, state taxable
+  const agi=gross-k401-preTaxHealth;
+  const salt=Math.min(40400,propTax+maTax);
+  const mfjStd=31500;
+  const itemized=salt+mortDed;
+  const useItem=itemized>mfjStd;
+  const fedTaxable=Math.max(0,agi-(useItem?itemized:mfjStd));
+  const fed=fedTax(fedTaxable);
+
+  // FICA — per person (health reduces FICA wages; HSA via cafeteria plan also reduces FICA wages)
+  const ssBase=184500;
+  const wFicaWages=Math.max(0,wComp-dWifeHealth);
+  const myFicaWages=Math.max(0,m1Comp-dDivHealth-dHSA);
+  const ss=0.062*Math.min(wFicaWages,ssBase)+0.062*Math.min(myFicaWages,ssBase);
+  const medW=Math.max(0,gross-preTaxHealth);
+  const medBase=0.0145*medW;
+  const medSurtax=0.009*Math.max(0,medW-250000);
+  const medicare=medBase+medSurtax;
+  const fica=ss+medicare;
+
+  const totalTax=fed+fica+maTax;
+  const netYr=gross-k401-totalTax-preTaxHealth-afterTax;
+  const takehome=netYr/12;
+  const effRate=gross?totalTax/gross*100:0;
+
+  // Update summary
+  $('iGross').textContent=fmt(gross);
+  $('iK401').textContent='–'+fmt(k401);
+  $('iHealth').textContent='–'+fmt(preTaxHealth);
+  $('iTaxable').textContent=fmt(agi);
+  $('iFed').textContent='–'+fmt(fed);
+  $('iFica').textContent='–'+fmt(fica);
+  $('iMa').textContent='–'+fmt(maTax);
+  $('iMaState').textContent='('+stateInfo[0]+', '+(stateRate*100).toFixed(2).replace(/\.?0+$/,'')+'%)';
+  $('iAfterTax').textContent='–'+fmt(afterTax);
+  $('iNet').textContent=fmt(netYr);
+  $('iNetMo').textContent=fmt(takehome);
+  $('netTop').textContent=fmt(takehome)+'/mo';
+  $('dedTot').textContent=fmt(preTaxHealth+afterTax)+'/yr';
+  $('stateRateNote').textContent = stateRate===0
+    ? stateInfo[0]+' has no state income tax.'
+    : stateInfo[0]+': ~'+(stateRate*100).toFixed(2).replace(/\.?0+$/,'')+'% (planning estimate)';
+
+  // Tax breakdown
+  $('effRate').textContent='effective '+effRate.toFixed(1)+'% of gross';
+  $('fedRt').textContent=fedTaxable?'('+(fed/fedTaxable*100).toFixed(1)+'% of taxable)':'';
+  $('tbFed').textContent=fmt(fed);
+  $('tbSS').textContent=fmt(ss);
+  $('tbMed').textContent=fmt(medicare)+(medSurtax>0?' (incl. '+fmt(medSurtax)+' surtax)':'');
+  $('tbMALbl').textContent=stateInfo[0]+' income tax'+(stateRate>0?' ('+(stateRate*100).toFixed(2).replace(/\.?0+$/,'')+'%)':' (none)');
+  $('tbMA').textContent=fmt(maTax);
+  $('tbTot').textContent=fmt(totalTax);
+
+  // Retirement flows
+  $('tbYourK').textContent=fmt(k401);
+  $('tbMatch').textContent=fmt(match);
+  $('tbHSA').textContent=fmt(dHSA+dHSAer);
+  $('retTot').textContent=fmt(k401+match+dHSA+dHSAer)+'/yr';
+
+  // ---- funding the purchase ----
+  const checking=numOf('checking'), savings=numOf('savings'), invested=numOf('invested');
+  const gainPct=+$('gain').value/100, cgRate=+$('cg').value/100;
+  const closing=numOf('closing'), moving=numOf('moving');
+  const totalCash=checking+savings+invested;
+  const need=down+closing+moving;
+  let rem=need;
+  const useCheck=Math.min(checking,rem); rem-=useCheck;
+  const useSav=Math.min(savings,rem); rem-=useSav;
+  const useInv=Math.min(invested,rem); rem-=useInv;
+  const cgTax=useInv*gainPct*cgRate;
+  const shortfall=rem;
+  const leftoverLiquid=(checking-useCheck)+(savings-useSav);
+  const leftoverInvested=invested-useInv;
+  const reserveAfter=leftoverLiquid+leftoverInvested-cgTax;
+
+  $('lgain').textContent=Math.round(gainPct*100)+'%';
+  $('lcg').textContent=(cgRate*100).toFixed(1)+'%';
+  $('fTotal').textContent=fmt(totalCash);
+  $('fDown').textContent='–'+fmt(down);
+  $('fClose').textContent='–'+fmt(closing);
+  $('fMove').textContent='–'+fmt(moving);
+  $('fCG').textContent='–'+fmt(cgTax);
+  const rEl=$('fReserve'); rEl.textContent=fmt(reserveAfter); rEl.className=reserveAfter<0?'neg':'';
+  const rt=$('reserveTop'); rt.textContent=fmt(reserveAfter)+' left'; rt.style.color=reserveAfter<0?'var(--red)':'var(--teal)';
+
+  let note='';
+  if(shortfall>0){
+    note='⚠ You\'re short '+fmt(shortfall)+' — cash, savings and investments together don\'t cover the purchase. You\'d need a smaller down payment, a portfolio loan, or another source.';
+  } else if(useInv>0){
+    note='Covered by '+fmt(useCheck+useSav)+' of cash/savings plus selling '+fmt(useInv)+' of investments (~'+fmt(cgTax)+' cap-gains tax on the gain). What\'s left is '+fmt(leftoverInvested)+' still invested'+(leftoverLiquid>0?' + '+fmt(leftoverLiquid)+' cash':'')+' — that\'s volatile, so consider moving some to cash.';
+  } else {
+    note='Fully covered by cash + savings, investments untouched. Reserve is '+fmt(leftoverLiquid)+' liquid + '+fmt(leftoverInvested)+' still invested, no tax triggered.';
+  }
+  $('fundNote').textContent=note;
+  $('startEFhint').textContent = shortfall>0 ? 'can\'t fully fund the purchase at these inputs'
+    : useInv>0 ? 'incl. '+fmt(leftoverInvested)+' still invested; ~'+fmt(cgTax)+' tax netted out'
+    : 'fully funded from cash + savings';
+
+  // ---- monthly cash flow ----
+  const expTot=expenses.reduce((s,e)=>s+e.amt,0);
+  $('expTot').textContent=fmt(expTot);
+  const outflow=house+expTot;
+  const surplus=takehome-outflow;
+  const pct=takehome?(house/takehome*100):0;
+  $('rNet').textContent=fmt(takehome);
+  $('rOut').textContent=fmt(outflow);
+  $('rPct').textContent=Math.round(pct)+'%';
+  $('rPctH').textContent=pct<28?'roomy':(pct<36?'reasonable':'getting heavy');
+  const sEl=$('rSurp'); sEl.textContent=fmt(surplus); sEl.className='v '+(surplus<0?'neg':'pos');
+
+  $('vsurplus').textContent=fmt(surplus); $('vsurplus').className='big'+(surplus<0?' neg':'');
+  const v=$('verdict'); v.classList.remove('warn','bad');
+  if(surplus<0){v.classList.add('bad');$('vtag').textContent='Over budget';
+    $('vhead').textContent='Spending exceeds take-home';
+    $('vbody').textContent='At these expense levels you\'d run a monthly deficit. Trim lines below or adjust the house.';}
+  else if(surplus<3000){v.classList.add('warn');$('vtag').textContent='Tight';
+    $('vhead').textContent='It works, but the margin is slim';
+    $('vbody').textContent='Little room for surprises or lumpy bonus months. Worth trimming to rebuild a bigger buffer.';}
+  else{$('vtag').textContent='Affordable';
+    $('vhead').textContent='Comfortable month to month';
+    $('vbody').textContent='The payment fits with real room left to save, invest, and absorb the occasional surprise.';}
+
+  // ---- emergency fund ----
+  const startEF=reserveAfter, tgtMonths=+$('months').value;
+  const dEl=$('startEFdisp'); dEl.textContent=fmt(startEF); dEl.className='v '+(startEF<0?'neg':'pos');
+  const target=tgtMonths*outflow;
+  $('lmonths').textContent=tgtMonths+' months';
+  const gap=target-startEF;
+  const efM=$('efMonths'), efS=$('efSub'), fill=$('efFill'), efT=$('efTarget');
+  const fillPct=Math.max(0,Math.min(100,startEF/target*100));
+  if(surplus<=0 && gap>0){
+    efM.textContent='—'; efM.classList.add('slow'); efS.textContent='No surplus to save at current spending.'; fill.style.width=fillPct+'%';
+  } else if(gap<=0){
+    efM.textContent='Already there'; efM.classList.remove('slow'); efS.textContent='Your post-closing reserve already meets a '+tgtMonths+'-month cushion.'; fill.style.width='100%';
+  } else {
+    const m=gap/surplus; efM.textContent=m<1?'< 1 month':(m.toFixed(1)+' months'); efM.classList.toggle('slow',m>9);
+    efS.textContent='saving your full '+fmt(surplus)+' surplus each month'; fill.style.width=fillPct+'%';
+  }
+  efT.innerHTML='Target: <b class="money">'+fmt(target)+'</b> ('+tgtMonths+' × '+fmt(outflow)+' monthly outflow) · starting from <b class="money">'+fmt(startEF)+'</b>';
+
+  // ---- reality check ----
+  const annualSave=surplus*12;
+  $('reality').innerHTML='You keep <b class="money">'+fmt(surplus)+'</b>/month after the house and everything above — about <b class="money">'+fmt(annualSave)+'</b>/year on top of the <b class="money">'+fmt(k401+match)+'</b> already flowing into retirement. '+
+    (surplus>0
+      ? 'The house eats <b>'+Math.round(pct)+'%</b> of take-home; lenders get uncomfortable past ~43% of income going to debt, and you\'re well below that.'
+      : 'You\'d need to cut about <b class="money">'+fmt(-surplus)+'</b>/month of spending (or buy less house) to break even.');
+}
+
+// ---- comma formatting for money fields ----
+function stripNum(s){ return (''+s).replace(/[^0-9.\-]/g,''); }
+function numOf(id){ const el=$(id); return el ? (parseFloat(stripNum(el.value))||0) : 0; }
+function commaFmt(s){
+  const clean=stripNum(s);
+  if(clean===''||clean==='-') return clean;
+  const neg=clean.startsWith('-');
+  const parts=clean.replace('-','').split('.');
+  parts[0]=parts[0].replace(/^0+(?=\d)/,'').replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  return (neg?'-':'')+parts.join('.');
+}
+function initMoneyFields(){
+  document.querySelectorAll('.money-in').forEach(el=>{
+    el.value=commaFmt(el.value);
+    el.addEventListener('input',()=>{
+      const start=el.selectionStart, before=el.value;
+      const formatted=commaFmt(el.value);
+      el.value=formatted;
+      const diff=formatted.length-before.length;
+      try{ el.setSelectionRange(Math.max(0,start+diff), Math.max(0,start+diff)); }catch(e){}
+      calc();
+    });
+  });
+}
+
+// Populate state dropdown
+(function(){
+  const sel=$('state');
+  Object.keys(STATE_TAX).forEach(code=>{
+    const o=document.createElement('option');
+    o.value=code; o.textContent=STATE_TAX[code][0]+(STATE_TAX[code][1]===0?' (no income tax)':'');
+    sel.appendChild(o);
+  });
+  sel.value='MA';
+})();
+
+// ---- restore saved input values, then wire up ----
+if(window.SAVED_STATE && window.SAVED_STATE.inputs){
+  Object.entries(window.SAVED_STATE.inputs).forEach(([id,val])=>{ const el=$(id); if(el) el.value=val; });
+}
+
+renderExp();
+initMoneyFields();
+document.querySelectorAll('#state,#price,#dp,#rate,#ptaxRate,#insY,#maint,#months,#gain,#cg,#wBonusPct,#wK401Pct,#wMatchPct,#m1BonusPct,#m1K401Pct,#m1MatchPct')
+  .forEach(el=>el.addEventListener('input',calc));
+
+// ---- export current state as a self-contained HTML file ----
+$('saveBtn').addEventListener('click',()=>{
+  const state={inputs:{},expenses:expenses};
+  document.querySelectorAll('input[id],select[id]').forEach(el=>{ state.inputs[el.id]=el.value; });
+  const cfg='<script id="saved-state">window.SAVED_STATE='+JSON.stringify(state)+';<\/script>';
+  let html=document.documentElement.outerHTML;
+  html=html.replace(/<script id="saved-state">[\s\S]*?<\/script>\s*/,'');
+  html=html.replace('<body>','<body>\n'+cfg+'\n');
+  const blob=new Blob(['<!DOCTYPE html>\n'+html],{type:'text/html'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='index.html'; document.body.appendChild(a); a.click(); a.remove();
+});
+
+calc();
+</script>
+</body>
+</html>
